@@ -6,7 +6,9 @@ import javafx.application.Platform;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Teneusz on 09.12.2016.
@@ -42,6 +44,10 @@ public class Elevator {
      * Moving direction of elevator
      */
     private ElevatorDirection direction = ElevatorDirection.STOP;
+
+    private Set<Integer> stations = new LinkedHashSet<>();
+
+    private boolean stopOnLevel;
 
     /**
      * Constructor of Elevator class with parameters
@@ -89,10 +95,37 @@ public class Elevator {
      */
     public void setLevel(int level) {
         this.level = level;
+        stopOnLevel = stations.contains(new Integer(level));
         List<Person> toRemove = new ArrayList<>();
         persons.stream().filter(p -> ElevatorUtil.isParsonLeave(p, level)).forEach(toRemove::add);
         persons.removeAll(toRemove);
+        stations.remove(new Integer(level));
+        if(stations.isEmpty())
+        {
+            direction = ElevatorDirection.STOP;
+        }
         shaft.repaint();
+    }
+
+    public boolean isStopOnLevel()
+    {
+        return stopOnLevel;
+    }
+
+    public void addStation(int station)
+    {
+        LOG.error("Dodaj station: "+station);
+        stations.add(new Integer(station));
+        if(direction==ElevatorDirection.STOP)
+        {
+            if(level>station)
+            {
+                direction = ElevatorDirection.UP;
+            }else{
+                direction = ElevatorDirection.DOWN;
+            }
+
+        }
     }
 
     /**
@@ -160,7 +193,6 @@ public class Elevator {
     }
 
     public void move() {
-        LOG.debug("ELEVATOR level: " + level);
         if (direction == ElevatorDirection.UP) {
             up();
         } else if (direction == ElevatorDirection.DOWN) {
@@ -168,6 +200,7 @@ public class Elevator {
         }
         Platform.runLater(() -> shaft.repaint());
         LOG.debug("ELEVATOR level: " + level);
+        stations.forEach(s->LOG.info("Station :"+s));
     }
 
     @Override
@@ -186,4 +219,21 @@ public class Elevator {
     public void setDirection(ElevatorDirection direction) {
         this.direction = direction;
     }
+
+    public void addPerson(Person person)
+    {
+        int destinationLevel = person.getDestinationLevel();
+        persons.add(person);
+        addStation(destinationLevel);
+        if(direction == ElevatorDirection.STOP)
+        {
+            if(destinationLevel > level)
+            {
+                direction = ElevatorDirection.DOWN;
+            }else{
+                direction = ElevatorDirection.UP;
+            }
+        }
+    }
+
 }

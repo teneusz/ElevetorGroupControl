@@ -23,7 +23,7 @@ public class Initialization extends Application {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("main.fxml"));
             Pane p = fxmlLoader.load();
             MainController fooController = fxmlLoader.getController();
-            fooController.setTime(1);
+            fooController.setTime(2);
 
             fooController.initialize(10, 4, 1200, 10);
 

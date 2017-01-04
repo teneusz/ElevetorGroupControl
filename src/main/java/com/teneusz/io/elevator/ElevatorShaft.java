@@ -69,11 +69,9 @@ public class ElevatorShaft extends VBox {
     public void setHeight(double value) {
         LOG.debug("START setHeight");
         super.setHeight(value);
-        LOG.debug("New shaft height: "+value);
         for (Node rec : getChildren()) {
             ((Rectangle) rec).setHeight(value / getChildren().size());
         }
-        LOG.debug("New level height: "+(value/getChildren().size()));
         LOG.debug("STOP setHeight");
     }
 

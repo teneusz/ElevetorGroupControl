@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
@@ -63,8 +64,9 @@
             <ComboBox fx:id="destinationLevelComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <ComboBox fx:id="callingComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Calling" GridPane.rowIndex="2" />
-            <Button fx:id="startTimer" mnemonicParsing="false" text="start" GridPane.rowIndex="4" />
-            <Button fx:id="stopTimer" mnemonicParsing="false" text="stop" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Button mnemonicParsing="false" onAction="#startTimer" text="start" GridPane.rowIndex="4" />
+            <Button mnemonicParsing="false" onAction="#stopTimer" text="stop" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Spinner fx:id="timerValue" GridPane.rowIndex="3" />
          </children>
       </GridPane>
    </children>

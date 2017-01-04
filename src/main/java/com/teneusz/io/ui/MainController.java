@@ -10,6 +10,8 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.layout.GridPane;
 import org.apache.log4j.Logger;
 
@@ -28,6 +30,8 @@ public class MainController {
     ComboBox<Integer> destinationLevelComboBox;
     @FXML
     ComboBox<Calling> callingComboBox;
+    @FXML
+    Spinner<Integer> timerValue;
     List<Elevator> elevators = new ArrayList<>();
     List<ElevatorShaft> shafts = new ArrayList<>();
     Map<Integer, List<Person>> persons = new HashMap<>();
@@ -45,7 +49,13 @@ public class MainController {
         gridPane.setMaxHeight(levels * 25);
         gridPane.setMinHeight(levels * 25);
         timer = new Timer();
-
+        timerValue.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10));
+        timerValue.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    setTime(newValue);
+                    stopTimer();
+                    startTimer();
+                }
+        );
         callingComboBox.getItems().addAll(Calling.values());
         for (int i = 0; i < shaftsInter; i++) {
 
@@ -139,17 +149,21 @@ public class MainController {
 
     @FXML
     public void stopTimer() {
-        try{
-        timer.cancel();}
-        catch(Exception e){
+        try {
+            timer.cancel();
+        } catch (Exception e) {
             LOG.debug("Can't cancel Timer object");
         }
     }
 
     @FXML
     public void startTimer() {
-        timer.scheduleAtFixedRate(new TimerClass(), time, time);
-
+        try {
+            timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerClass(), time, time);
+        } catch (Exception e) {
+            LOG.debug("Can't start Timer object");
+        }
     }
 
     public int getTime() {
@@ -172,62 +186,69 @@ public class MainController {
             for (Elevator elevator : elevators) {
                 List<Person> tmpList = persons.get(elevator.getLevel());
                 List<Person> toRemove = new ArrayList<>();
-                //Remove persons from elevator
-                elevator.getPersons().stream().filter(f -> f.getDestinationLevel() == elevator.getLevel()).filter(elevator.getPersons()::remove);
-                //Add persons to elevator
-                if (elevator.getDirection() == ElevatorDirection.UP) {
-                    tmpList.stream().filter(f -> f.getCall() == Calling.CALL_UP).forEach(p -> {
-                        if (!elevator.isMaxPersons()) {
-                            elevator.getPersons().add(p);
-                            toRemove.add(p);
-                        }
-                    });
-                    tmpList.removeAll(toRemove);
-                    toRemove.clear();
-                    tmpList.stream().filter(f -> f.getCall() == Calling.CALL && f.getDestinationLevel() > elevator.getLevel()).forEach(person -> {
-                        if (!elevator.isMaxPersons()) {
-                            elevator.getPersons().add(person);
-                            toRemove.add(person);
+                if (elevator.isStopOnLevel()) {
+                    OnDirectionUp(elevator, tmpList, toRemove);
+                    OnDirectionDown(elevator, tmpList, toRemove);
+                    if (elevator.getDirection() == ElevatorDirection.STOP && !getPersons(elevator.getLevel()).isEmpty()) {
+                        LOG.debug("Elevator direction is equals STOP");
+                        elevator.addPerson(getPersons(elevator.getLevel()).get(0));
+                        LOG.debug(getPersons(elevator.getLevel()).remove(getPersons(elevator.getLevel()).get(0))?"Remove successfull":"remove failed");
+                        OnDirectionUp(elevator, tmpList, toRemove);
+                        OnDirectionDown(elevator, tmpList, toRemove);
 
-                        }
-                    });
-                    tmpList.removeAll(toRemove);
-                    toRemove.clear();
+                    }
                 }
-
-                if (elevator.getDirection() == ElevatorDirection.UP) {
-                    tmpList.stream().filter(f -> f.getCall() == Calling.CALL_DOWN).forEach(p -> {
-                        if (!elevator.isMaxPersons()) {
-                            elevator.getPersons().add(p);
-                            toRemove.add(p);
-
-                        }
-                    });
+                if (tmpList != null && toRemove != null) {
                     tmpList.removeAll(toRemove);
-                    toRemove.clear();
-                    tmpList.stream().filter(f -> f.getCall() == Calling.CALL && f.getDestinationLevel() < elevator.getLevel()).forEach(person -> {
-                        if (!elevator.isMaxPersons()) {
-                            elevator.getPersons().add(person);
-                            toRemove.add(person);
-
-                        }
-                    });
-                    tmpList.removeAll(toRemove);
-                    toRemove.clear();
-                }
-                persons.put(elevator.getLevel(),tmpList);
-                if (elevator.getPersons().isEmpty()) {
-                    elevator.setDirection(ElevatorDirection.STOP);
                 }
                 persons.put(elevator.getLevel(), tmpList);
             }
 
             //Run fuzzy logic
+            LOG.debug("Run fuzzy logic");
             for (Map.Entry<Integer, List<Person>> entry : persons.entrySet()) {
                 Sterowanie.method(elevators, entry.getValue(), entry.getKey());
             }
             //Move elevators
+            LOG.debug("Move elevators");
             elevators.forEach(e -> e.move());
+        }
+
+        private void OnDirectionUp(Elevator elevator, List<Person> tmpList, List<Person> toRemove) {
+            if (elevator.getDirection() == ElevatorDirection.UP) {
+                LOG.debug("Elevator direction is equals UP");
+                getPersons(elevator.getLevel()).stream().filter(p -> p.getCall() == Calling.CALL_DOWN).forEach(p -> {
+                    if (!elevator.isMaxPersons()) {
+                        LOG.debug("Add person to list of passengers");
+                        elevator.addPerson(p);
+                        LOG.debug("Add person to temporary list toRemove");
+                        toRemove.add(p);
+                    }
+                });
+            }
+            clearPersons(tmpList, toRemove);
+        }
+
+        private void OnDirectionDown(Elevator elevator, List<Person> tmpList, List<Person> toRemove) {
+            if (elevator.getDirection() == ElevatorDirection.DOWN) {
+                LOG.debug("Elevator direction is equals DOWN");
+                getPersons(elevator.getLevel()).stream().filter(p -> p.getCall() == Calling.CALL_UP).forEach(p -> {
+                    if (!elevator.isMaxPersons()) {
+                        LOG.debug("Add person to list of passengers");
+                        elevator.addPerson(p);
+                        LOG.debug("Add person to temporary list toRemove");
+                        toRemove.add(p);
+                    }
+                });
+            }
+            clearPersons(tmpList, toRemove);
+        }
+
+        private void clearPersons(List<Person> tmpList, List<Person> toRemove) {
+            if (tmpList != null && toRemove != null) {
+                tmpList.removeAll(toRemove);
+            }
+            toRemove.clear();
         }
     }
 
