@@ -11,7 +11,7 @@ import java.util.Arrays;
 /**
  * Created by Teneusz on 28.12.2016.
  */
-public class SterowanieTest {
+public class FuzzyControlTest {
 
     @Test
     public void testMethod() {
@@ -30,6 +30,6 @@ public class SterowanieTest {
         Person p1 = new Person(75, 5, Calling.CALL);
         Person p2 = new Person(89, 6,Calling.CALL);
 
-        Sterowanie.method(Arrays.asList(ev1, ev2), Arrays.asList(p1, p2), 4);
+        FuzzyControl.method(Arrays.asList(ev1, ev2), Arrays.asList(p1, p2), 4);
     }
 }

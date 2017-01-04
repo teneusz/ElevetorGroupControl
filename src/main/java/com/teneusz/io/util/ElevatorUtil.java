@@ -29,7 +29,7 @@ public class ElevatorUtil {
         for (Person person : persons) {
             result = result || isParsonLeave(person, level);
         }
-        return false;
+        return result;
     }
 
 }

@@ -1,6 +1,5 @@
 package com.teneusz.io.ui;
 
-import com.teneusz.io.exception.handel.ExceptionHandler;
 import com.teneusz.io.fuzzy.logic.LinguisticVariables;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

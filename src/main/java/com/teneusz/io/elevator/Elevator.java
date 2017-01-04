@@ -14,7 +14,7 @@ import java.util.Set;
  * Created by Teneusz on 09.12.2016.
  */
 public class Elevator {
-    private static Logger LOG = Logger.getLogger(Elevator.class);
+    private static final Logger LOG = Logger.getLogger(Elevator.class);
 
     /**
      * Weight capacity of elevator - default 900
@@ -95,11 +95,11 @@ public class Elevator {
      */
     public void setLevel(int level) {
         this.level = level;
-        stopOnLevel = stations.contains(new Integer(level));
+        stopOnLevel = stations.contains(level);
         List<Person> toRemove = new ArrayList<>();
         persons.stream().filter(p -> ElevatorUtil.isParsonLeave(p, level)).forEach(toRemove::add);
         persons.removeAll(toRemove);
-        stations.remove(new Integer(level));
+        stations.remove(level);
         if(stations.isEmpty())
         {
             direction = ElevatorDirection.STOP;
@@ -115,7 +115,7 @@ public class Elevator {
     public void addStation(int station)
     {
         LOG.error("Dodaj station: "+station);
-        stations.add(new Integer(station));
+        stations.add(station);
         if(direction==ElevatorDirection.STOP)
         {
             if(level>station)

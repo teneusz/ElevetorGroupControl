@@ -3,7 +3,7 @@ package com.teneusz.io.ui;
 import com.teneusz.io.elevator.Elevator;
 import com.teneusz.io.elevator.ElevatorDirection;
 import com.teneusz.io.elevator.ElevatorShaft;
-import com.teneusz.io.fuzzy.logic.Sterowanie;
+import com.teneusz.io.fuzzy.logic.FuzzyControl;
 import com.teneusz.io.person.Calling;
 import com.teneusz.io.person.Person;
 import javafx.fxml.FXML;
@@ -84,7 +84,7 @@ public class MainController {
         }
 
         for (int i = 0; i < levels; i++) {
-            destinationLevelComboBox.getItems().add(new Integer(i));
+            destinationLevelComboBox.getItems().add(i);
             persons.put(i, new ArrayList<>());
         }
 
@@ -184,34 +184,32 @@ public class MainController {
         @Override
         public void run() {
             for (Elevator elevator : elevators) {
-                List<Person> tmpList = persons.get(elevator.getLevel());
+
+                int elevatorLevel = elevator.getLevel();
+                List<Person> tmpList = persons.get(elevatorLevel);
                 List<Person> toRemove = new ArrayList<>();
                 if (elevator.isStopOnLevel()) {
+                    if (elevator.getDirection() == ElevatorDirection.STOP && !getPersons(elevatorLevel).isEmpty()) {
+                        LOG.debug("Elevator direction is equals STOP");
+                        elevator.addPerson(getPersons(elevatorLevel).remove(0));
+                    }
                     OnDirectionUp(elevator, tmpList, toRemove);
                     OnDirectionDown(elevator, tmpList, toRemove);
-                    if (elevator.getDirection() == ElevatorDirection.STOP && !getPersons(elevator.getLevel()).isEmpty()) {
-                        LOG.debug("Elevator direction is equals STOP");
-                        elevator.addPerson(getPersons(elevator.getLevel()).get(0));
-                        LOG.debug(getPersons(elevator.getLevel()).remove(getPersons(elevator.getLevel()).get(0))?"Remove successfull":"remove failed");
-                        OnDirectionUp(elevator, tmpList, toRemove);
-                        OnDirectionDown(elevator, tmpList, toRemove);
-
-                    }
                 }
-                if (tmpList != null && toRemove != null) {
+                if (tmpList != null) {
                     tmpList.removeAll(toRemove);
                 }
-                persons.put(elevator.getLevel(), tmpList);
+                persons.put(elevatorLevel, tmpList);
             }
 
             //Run fuzzy logic
             LOG.debug("Run fuzzy logic");
             for (Map.Entry<Integer, List<Person>> entry : persons.entrySet()) {
-                Sterowanie.method(elevators, entry.getValue(), entry.getKey());
+                FuzzyControl.method(elevators, entry.getValue(), entry.getKey());
             }
             //Move elevators
             LOG.debug("Move elevators");
-            elevators.forEach(e -> e.move());
+            elevators.forEach(Elevator::move);
         }
 
         private void OnDirectionUp(Elevator elevator, List<Person> tmpList, List<Person> toRemove) {
@@ -248,7 +246,9 @@ public class MainController {
             if (tmpList != null && toRemove != null) {
                 tmpList.removeAll(toRemove);
             }
-            toRemove.clear();
+            if (toRemove != null) {
+                toRemove.clear();
+            }
         }
     }
 

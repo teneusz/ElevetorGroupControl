@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
  */
 public class ElevatorShaft extends VBox {
 
-    private static Logger LOG = Logger.getLogger(ElevatorShaft.class);
+    private static final Logger LOG = Logger.getLogger(ElevatorShaft.class);
 
     private int maxLevel;
     private Elevator elevator;

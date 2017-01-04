@@ -7,12 +7,12 @@ import org.apache.log4j.Logger;
 /**
  * Created by Teneusz on 26.12.2016.
  */
-public class Wnioskowanie {
+public class Conclusion {
 
     private final LinguisticVariables variables;
-    private static final Logger LOG = Logger.getLogger(Wnioskowanie.class);
+    private static final Logger LOG = Logger.getLogger(Conclusion.class);
 
-    public Wnioskowanie(LinguisticVariables lv) {
+    public Conclusion(LinguisticVariables lv) {
         this.variables = lv;
     }
 

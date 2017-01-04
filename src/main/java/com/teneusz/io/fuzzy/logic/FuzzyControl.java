@@ -13,16 +13,16 @@ import java.util.List;
 /**
  * Created by Teneusz on 28.12.2016.
  */
-public class Sterowanie {
+public class FuzzyControl {
     private static boolean call, callUp, callDown;
-    private static Logger LOG = Logger.getLogger(Sterowanie.class);
-    private static Wnioskowanie wnioskowanie = new Wnioskowanie(new LinguisticVariables());
+    private static final Logger LOG = Logger.getLogger(FuzzyControl.class);
+    private static final Conclusion conclusion = new Conclusion(new LinguisticVariables());
 
     public static void method(@NotNull List<Elevator> elevators, @NotNull List<Person> personsOnFloor, @NotNull int level) {
-        float wnioskowanieArray[] = new float[elevators.size()];
-        for (int i = 0; i < wnioskowanieArray.length; i++) {
-            wnioskowanieArray[i] = wnioskowanie.regula2(elevators.get(i), level);
-            LOG.debug("Winda " + i + " => " + wnioskowanieArray[i]);
+        float conclusionArray[] = new float[elevators.size()];
+        for (int i = 0; i < conclusionArray.length; i++) {
+            conclusionArray[i] = conclusion.regula2(elevators.get(i), level);
+            LOG.debug("Winda " + i + " => " + conclusionArray[i]);
         }
         callUp = false;
         callDown = false;
@@ -34,17 +34,17 @@ public class Sterowanie {
         });
 
         if (callUp) {
-            callingUp(elevators, level, wnioskowanieArray);
+            callingUp(elevators, level, conclusionArray);
         }
         if (callDown) {
-            callingDown(elevators, level, wnioskowanieArray);
+            callingDown(elevators, level, conclusionArray);
         }
         if (call) {
-            calling(elevators, level, wnioskowanieArray);
+            calling(elevators, level, conclusionArray);
         }
     }
 
-    private static boolean calling(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
+    private static void calling(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
         LOG.debug("Start calling");
         List<Elevator> subList = new ArrayList<>();
         Elevator elevator = null;
@@ -65,12 +65,11 @@ public class Sterowanie {
         if (elevator != null) {
             LOG.debug("Add station: " + level);
             elevator.addStation(level);
-            return true;
         }
-        return false;
+
     }
 
-    private static boolean callingDown(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
+    private static void callingDown(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
         LOG.debug("Start callingDown");
         List<Elevator> subList = new ArrayList<>();
         Elevator elevator = null;
@@ -86,12 +85,11 @@ public class Sterowanie {
         if (elevator != null) {
             LOG.debug("Add station: " + level);
             elevator.addStation(level);
-            return true;
         }
-        return false;
+
     }
 
-    private static boolean callingUp(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
+    private static void callingUp(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
         LOG.debug("Start callingUP");
         List<Elevator> subList = new ArrayList<>();
         Elevator elevator = null;
@@ -107,9 +105,8 @@ public class Sterowanie {
         if (elevator != null) {
             LOG.debug("Add station: " + level);
             elevator.addStation(level);
-            return true;
         }
-        return false;
+
     }
 
 }
