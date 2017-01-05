@@ -15,6 +15,7 @@ import java.util.Set;
  */
 public class Elevator {
     private static final Logger LOG = Logger.getLogger(Elevator.class);
+    private final int id;
 
     /**
      * Weight capacity of elevator - default 900
@@ -55,16 +56,14 @@ public class Elevator {
      * @param capacity   Weight capacity of elevator
      * @param maxPersons Persons capacity of elevator
      */
-    public Elevator(int capacity, int maxPersons) {
+    public Elevator(int capacity, int maxPersons,int id) {
         this.capacity = capacity;
         this.maxPersons = maxPersons;
+        this.id = id;
     }
-
-    /**
-     * Constructor of Elevator class without parameters
-     */
-    public Elevator() {
-        super();
+    public int getId()
+    {
+        return id;
     }
 
     /**

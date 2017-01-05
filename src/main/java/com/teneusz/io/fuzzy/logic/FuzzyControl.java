@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Teneusz on 28.12.2016.
+ * Purpose of class is add station to elevators based on results from Conclusion class
  */
 public class FuzzyControl {
     private static boolean call, callUp, callDown;
@@ -19,18 +19,22 @@ public class FuzzyControl {
     private static final Conclusion conclusion = new Conclusion(new LinguisticVariables());
 
     public static void method(@NotNull List<Elevator> elevators, @NotNull List<Person> personsOnFloor, @NotNull int level) {
+        //Declaration and definition of conclusion array
         float conclusionArray[] = new float[elevators.size()];
+        //Fill conclusion array with results from Conclusion class
         for (int i = 0; i < conclusionArray.length; i++) {
-            conclusionArray[i] = conclusion.regula2(elevators.get(i), level);
-            LOG.debug("Winda " + i + " => " + conclusionArray[i]);
+            conclusionArray[i] = conclusion.regula1(elevators.get(i), level);
         }
+        //Set call flags on false
         callUp = false;
         callDown = false;
         call = false;
+        //Set call flags based on persons calls
         personsOnFloor.forEach(p -> {
-            callUp = callUp || p.getCall() == Calling.CALL_UP;
-            callDown = callDown || p.getCall() == Calling.CALL_DOWN;
-            call = call || p.getCall() == Calling.CALL;
+            Calling personCall = p.getCall();
+            callUp = callUp || personCall == Calling.CALL_UP;
+            callDown = callDown || personCall == Calling.CALL_DOWN;
+            call = call || personCall == Calling.CALL;
         });
 
         if (callUp) {
@@ -44,38 +48,45 @@ public class FuzzyControl {
         }
     }
 
-    private static void calling(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
-        LOG.debug("Start calling");
+    /**
+     *
+     *
+     * @param elevators       List of elevators in building
+     * @param level           Current level
+     * @param conclusionArray Array with results from {@link Conclusion} class
+     */
+    private static void calling(List<Elevator> elevators, int level, float[] conclusionArray) {
+        LOG.info("Start calling");
         List<Elevator> subList = new ArrayList<>();
         elevators.stream().filter(e -> {
-            boolean callDown = (e.getDirection() == ElevatorDirection.UP || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() < level;
-            boolean callUp = (e.getDirection() == ElevatorDirection.DOWN || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() > level;
+            boolean callDown = (e.getDirection() == ElevatorDirection.UP || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() > level;
+            boolean callUp = (e.getDirection() == ElevatorDirection.DOWN || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() < level;
             return callDown || callUp;
         }).forEach(subList::add);
-        findBestElevator(elevators, level, wnioskowanieArray, subList);
-
+        findBestElevator(elevators, level, conclusionArray, subList);
     }
 
-    private static void callingDown(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
-        LOG.debug("Start callingDown");
+    private static void callingUp(List<Elevator> elevators, int level, float[] conclusionArray) {
+        LOG.info("Start callingDown");
         List<Elevator> subList = new ArrayList<>();
-        elevators.stream().filter(e -> (e.getDirection() == ElevatorDirection.UP || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() < level).forEach(subList::add);
-        findBestElevator(elevators, level, wnioskowanieArray, subList);
+        elevators.stream().filter(e -> (e.getDirection() == ElevatorDirection.UP || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() > level).forEach(subList::add);
+        findBestElevator(elevators, level, conclusionArray, subList);
 
     }
 
-    private static void callingUp(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
-        LOG.debug("Start callingUP");
+    private static void callingDown(List<Elevator> elevators, int level, float[] conclusionArray) {
+        LOG.info("Start callingUP");
         List<Elevator> subList = new ArrayList<>();
-        elevators.stream().filter(e -> (e.getDirection() == ElevatorDirection.DOWN || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() > level).forEach(subList::add);
-        findBestElevator(elevators, level, wnioskowanieArray, subList);
+        elevators.stream().filter(e -> (e.getDirection() == ElevatorDirection.DOWN || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() < level).forEach(subList::add);
+        findBestElevator(elevators, level, conclusionArray, subList);
     }
 
-    private static void findBestElevator(List<Elevator> elevators, int level, float[] wnioskowanieArray, List<Elevator> subList) {
-        Elevator elevator = null;
+    private static void findBestElevator(List<Elevator> elevators, int level, float[] conclusionArray, List<Elevator> subList) {
+        Elevator elevator = elevators.get(0);
         float result = Float.MAX_VALUE;
         for (Elevator ev : subList) {
-            float tmp = wnioskowanieArray[elevators.indexOf(ev)];
+            LOG.info("Elevator id: " + ev.getId());
+            float tmp = conclusionArray[elevators.indexOf(ev)];
             if (tmp < result) {
                 elevator = ev;
                 result = tmp;
@@ -88,8 +99,3 @@ public class FuzzyControl {
     }
 
 }
-/**
- * Jeżeli na piątym piętrze jest wezwanie windy z dołu to muszę do windy z dołu która porusza się do góry lub stoi dopisać przystanek na piątym piętrze
- * Jeżeli na piątym piętrze jest wezwanie windy z góry to muszę do windy z góry która porusza się na dół lub stoi dopisać przystanek na piątym piętrze
- * Jeżeli na piątym piętrze jest wezwanie windy to muszę znaleść windę która może podjechać na piąte piętro i dodać jej przystanek na piątym piętrze
- */

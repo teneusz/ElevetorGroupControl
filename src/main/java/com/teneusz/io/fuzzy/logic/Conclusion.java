@@ -16,7 +16,7 @@ public class Conclusion {
         this.variables = lv;
     }
 
-    public float regulyJeden(Elevator elevator, int destLevel) {
+    public float regula1(Elevator elevator, int destLevel) {
 
         float result = -1;
         if (!elevator.isMaxPersons()) {

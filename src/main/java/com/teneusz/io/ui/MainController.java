@@ -61,7 +61,7 @@ public class MainController {
 
             LOG.debug("Add shaft No. " + i);
             ElevatorShaft shaft = new ElevatorShaft(levels);
-            Elevator elevator = new Elevator(capacity, maxPersons);
+            Elevator elevator = new Elevator(capacity, maxPersons,i);
             shaft.setElevator(elevator);
             shaft.setPadding(new Insets(0, 0, 0, 0));
             shaft.setStyle("-fx-padding: 0px;-fx-margin: 5px;");
@@ -72,16 +72,20 @@ public class MainController {
             shaft.setMaxWidth(25);
             shaft.setPrefWidth(25);
             shaft.setWidth(25.0);
-            shaft.setHeight(levels * 24);
-            shaft.setMinHeight(levels * 24);
-            shaft.setMaxHeight(levels * 24);
-            shaft.setPrefHeight(levels * 24);
+            shaft.setHeight(gridPane.getHeight());
+            shaft.setMinHeight(gridPane.getHeight());
+            shaft.setMaxHeight(gridPane.getHeight());
+            shaft.setPrefHeight(gridPane.getHeight());
             gridPane.add(shaft, i, 0, 1, levels);
-            shaft.setLayoutX(-50.0);
             shaft.setLayoutY(0.0);
             gridPane.setAlignment(Pos.CENTER);
 
         }
+
+        gridPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            shafts.forEach(s->s.setHeight(newValue.doubleValue()));
+        });
+
 
         for (int i = 0; i < levels; i++) {
             destinationLevelComboBox.getItems().add(i);
@@ -94,52 +98,52 @@ public class MainController {
 
     @FXML
     public void addPersonOnZero() {
-        persons.get(0).add(createPerson());
+        persons.get(9).add(createPerson());
     }
 
     @FXML
     public void addPersonOnOne() {
-        persons.get(1).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnTwo() {
-        persons.get(2).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnThree() {
-        persons.get(3).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnFour() {
-        persons.get(4).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnFive() {
-        persons.get(5).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnSix() {
-        persons.get(6).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnSeven() {
-        persons.get(7).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnEight() {
         persons.get(8).add(createPerson());
     }
 
     @FXML
+    public void addPersonOnTwo() {
+        persons.get(7).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnThree() {
+        persons.get(6).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnFour() {
+        persons.get(5).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnFive() {
+        persons.get(4).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnSix() {
+        persons.get(3).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnSeven() {
+        persons.get(2).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnEight() {
+        persons.get(1).add(createPerson());
+    }
+
+    @FXML
     public void addPersonOnNine() {
-        persons.get(9).add(createPerson());
+        persons.get(0).add(createPerson());
     }
 
     private Person createPerson() {
