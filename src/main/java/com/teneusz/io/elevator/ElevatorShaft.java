@@ -27,7 +27,7 @@ public class ElevatorShaft extends VBox {
     private void addLevels() {
         LOG.debug("START addLevel");
         this.getChildren().clear();
-        for (int i = 0; i <=maxLevel; i++) {
+        for (int i = 0; i < maxLevel; i++) {
             Rectangle textArea = new Rectangle();
             textArea.setWidth(this.getWidth());
             textArea.setHeight(this.getHeight() / maxLevel);
@@ -46,19 +46,11 @@ public class ElevatorShaft extends VBox {
         LOG.debug("STOP setMaxLevel");
     }
 
-    public void setActiveLevel(int activeLevel) {
-        if (activeLevel > elevator.getLevel()) {
-            elevator.down();
-        } else if (activeLevel < elevator.getLevel()) {
-            elevator.up();
-        }
-    }
-
     @Override
     public void setWidth(double value) {
         LOG.debug("START setWidth");
         super.setWidth(value);
-        LOG.debug("New shaft width: "+value);
+        LOG.debug("New shaft width: " + value);
         for (Node rec : getChildren()) {
             ((Rectangle) rec).setWidth(value);
         }

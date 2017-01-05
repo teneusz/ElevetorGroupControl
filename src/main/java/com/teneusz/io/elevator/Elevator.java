@@ -100,28 +100,23 @@ public class Elevator {
         persons.stream().filter(p -> ElevatorUtil.isParsonLeave(p, level)).forEach(toRemove::add);
         persons.removeAll(toRemove);
         stations.remove(level);
-        if(stations.isEmpty())
-        {
+        if (stations.isEmpty()) {
             direction = ElevatorDirection.STOP;
         }
         shaft.repaint();
     }
 
-    public boolean isStopOnLevel()
-    {
+    public boolean isStopOnLevel() {
         return stopOnLevel;
     }
 
-    public void addStation(int station)
-    {
-        LOG.error("Dodaj station: "+station);
+    public void addStation(int station) {
+        LOG.error("Dodaj station: " + station);
         stations.add(station);
-        if(direction==ElevatorDirection.STOP)
-        {
-            if(level>station)
-            {
+        if (direction == ElevatorDirection.STOP) {
+            if (level > station) {
                 direction = ElevatorDirection.UP;
-            }else{
+            } else {
                 direction = ElevatorDirection.DOWN;
             }
 
@@ -149,22 +144,39 @@ public class Elevator {
     /**
      * Move elevator one level up if current level is not max
      */
-    public void up() {
+    private void up() {
         LOG.debug("com.teneusz.io.elevator.Elevator try go UP");
-        if (level > 0 && direction == ElevatorDirection.UP) {
+        if (level > 0) {
             setLevel(level - 1);
+        } else {
+            recalculateDirection();
         }
 
+    }
+
+    private void recalculateDirection() {
+        if (stations.isEmpty()) {
+            direction = ElevatorDirection.STOP;
+        } else {
+            if (direction == ElevatorDirection.UP && level == 0 && ElevatorUtil.getMaxStation(new ArrayList<>(stations)) > level) {
+                direction = ElevatorDirection.DOWN;
+            } else if (direction == ElevatorDirection.DOWN && level == shaft.getMaxLevel() - 1 && ElevatorUtil.getMinStation(new ArrayList<>(stations)) < shaft.getMaxLevel()) {
+                direction = ElevatorDirection.UP;
+            }
+        }
     }
 
     /**
      * Move elevator one level down if current level is not 0
      */
-    public void down() {
+    private void down() {
         LOG.debug("com.teneusz.io.elevator.Elevator try go down");
-        if (shaft.getMaxLevel() > level && direction == ElevatorDirection.DOWN) {
+        if (shaft.getMaxLevel() > level) {
             setLevel(level + 1);
+        } else {
+            recalculateDirection();
         }
+
     }
 
     /**
@@ -200,7 +212,7 @@ public class Elevator {
         }
         Platform.runLater(() -> shaft.repaint());
         LOG.debug("ELEVATOR level: " + level);
-        stations.forEach(s->LOG.info("Station :"+s));
+        stations.forEach(s -> LOG.info("Station :" + s));
     }
 
     @Override
@@ -220,17 +232,14 @@ public class Elevator {
         this.direction = direction;
     }
 
-    public void addPerson(Person person)
-    {
+    public void addPerson(Person person) {
         int destinationLevel = person.getDestinationLevel();
         persons.add(person);
         addStation(destinationLevel);
-        if(direction == ElevatorDirection.STOP)
-        {
-            if(destinationLevel > level)
-            {
+        if (direction == ElevatorDirection.STOP) {
+            if (destinationLevel > level) {
                 direction = ElevatorDirection.DOWN;
-            }else{
+            } else {
                 direction = ElevatorDirection.UP;
             }
         }

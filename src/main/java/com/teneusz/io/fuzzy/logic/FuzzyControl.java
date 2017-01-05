@@ -47,54 +47,33 @@ public class FuzzyControl {
     private static void calling(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
         LOG.debug("Start calling");
         List<Elevator> subList = new ArrayList<>();
-        Elevator elevator = null;
-        float result = Float.MAX_VALUE;
         elevators.stream().filter(e -> {
             boolean callDown = (e.getDirection() == ElevatorDirection.UP || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() < level;
             boolean callUp = (e.getDirection() == ElevatorDirection.DOWN || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() > level;
             return callDown || callUp;
         }).forEach(subList::add);
-        LOG.debug("SubList: " + subList.size());
-        for (Elevator ev : subList) {
-            float tmp = wnioskowanieArray[elevators.indexOf(ev)];
-            if (tmp < result) {
-                elevator = ev;
-                result = tmp;
-            }
-        }
-        if (elevator != null) {
-            LOG.debug("Add station: " + level);
-            elevator.addStation(level);
-        }
+        findBestElevator(elevators, level, wnioskowanieArray, subList);
 
     }
 
     private static void callingDown(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
         LOG.debug("Start callingDown");
         List<Elevator> subList = new ArrayList<>();
-        Elevator elevator = null;
-        float result = Float.MAX_VALUE;
         elevators.stream().filter(e -> (e.getDirection() == ElevatorDirection.UP || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() < level).forEach(subList::add);
-        for (Elevator ev : subList) {
-            float tmp = wnioskowanieArray[elevators.indexOf(ev)];
-            if (tmp < result) {
-                elevator = ev;
-                result = tmp;
-            }
-        }
-        if (elevator != null) {
-            LOG.debug("Add station: " + level);
-            elevator.addStation(level);
-        }
+        findBestElevator(elevators, level, wnioskowanieArray, subList);
 
     }
 
     private static void callingUp(List<Elevator> elevators, int level, float[] wnioskowanieArray) {
         LOG.debug("Start callingUP");
         List<Elevator> subList = new ArrayList<>();
+        elevators.stream().filter(e -> (e.getDirection() == ElevatorDirection.DOWN || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() > level).forEach(subList::add);
+        findBestElevator(elevators, level, wnioskowanieArray, subList);
+    }
+
+    private static void findBestElevator(List<Elevator> elevators, int level, float[] wnioskowanieArray, List<Elevator> subList) {
         Elevator elevator = null;
         float result = Float.MAX_VALUE;
-        elevators.stream().filter(e -> (e.getDirection() == ElevatorDirection.DOWN || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() > level).forEach(subList::add);
         for (Elevator ev : subList) {
             float tmp = wnioskowanieArray[elevators.indexOf(ev)];
             if (tmp < result) {
@@ -106,7 +85,6 @@ public class FuzzyControl {
             LOG.debug("Add station: " + level);
             elevator.addStation(level);
         }
-
     }
 
 }
