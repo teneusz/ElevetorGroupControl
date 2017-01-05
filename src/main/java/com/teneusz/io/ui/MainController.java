@@ -73,9 +73,9 @@ public class MainController {
             shaft.setPrefWidth(25);
             shaft.setWidth(25.0);
             shaft.setHeight(gridPane.getHeight());
-            shaft.setMinHeight(gridPane.getHeight());
-            shaft.setMaxHeight(gridPane.getHeight());
-            shaft.setPrefHeight(gridPane.getHeight());
+            shaft.setMinHeight(gridPane.getMinHeight());
+            shaft.setMaxHeight(gridPane.getMaxHeight());
+            shaft.setPrefHeight(gridPane.getPrefHeight());
             gridPane.add(shaft, i, 0, 1, levels);
             shaft.setLayoutY(0.0);
             gridPane.setAlignment(Pos.CENTER);
