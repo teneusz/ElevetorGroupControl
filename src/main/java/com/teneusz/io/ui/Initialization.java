@@ -23,7 +23,7 @@ public class Initialization extends Application {
             Pane p = fxmlLoader.load();
             MainController fooController = fxmlLoader.getController();
             fooController.setTime(2);
-
+            primaryStage.setResizable(false);
             fooController.initialize(10, 4, 1200, 10);
 
             primaryStage.setScene(new Scene(p));

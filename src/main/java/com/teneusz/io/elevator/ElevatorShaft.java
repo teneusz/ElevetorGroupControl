@@ -74,6 +74,8 @@ public class ElevatorShaft extends VBox {
         LOG.debug("START setHeight");
         super.setHeight(value);
         double height = value / getChildren().size();
+        LOG.info("value: " + value);
+        LOG.info("height: " + height);
         for (Node rec : getChildren()) {
             Rectangle rectangle = (Rectangle) ((StackPane) rec).getChildren().get(0);
 

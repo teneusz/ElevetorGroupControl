@@ -7,11 +7,8 @@ import com.teneusz.io.fuzzy.logic.FuzzyControl;
 import com.teneusz.io.person.Calling;
 import com.teneusz.io.person.Person;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import org.apache.log4j.Logger;
 
@@ -31,6 +28,9 @@ public class MainController {
     @FXML
     ComboBox<Calling> callingComboBox;
     @FXML
+    TextField floorZeroText, floorOneText, floorTwoText, floorThreeText, floorFourText, floorFiveText, floorSixText, floorSevenText, floorEightText, floorNineText;
+    List<TextField> floorsText = new ArrayList<>();
+    @FXML
     Spinner<Integer> timerValue;
     List<Elevator> elevators = new ArrayList<>();
     List<ElevatorShaft> shafts = new ArrayList<>();
@@ -45,9 +45,7 @@ public class MainController {
     private int time = 1000;
 
     public void initialize(int levels, int shaftsInter, int capacity, int maxPersons) {
-        gridPane.setPrefHeight(levels * 25);
-        gridPane.setMaxHeight(levels * 25);
-        gridPane.setMinHeight(levels * 25);
+        Collections.addAll(floorsText, new TextField[]{floorZeroText, floorOneText, floorTwoText, floorThreeText, floorFourText, floorFiveText, floorSixText, floorSevenText, floorEightText, floorNineText});
         timer = new Timer();
         timerValue.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10));
         timerValue.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -61,32 +59,20 @@ public class MainController {
 
             LOG.debug("Add shaft No. " + i);
             ElevatorShaft shaft = new ElevatorShaft(levels);
-            Elevator elevator = new Elevator(capacity, maxPersons,i);
+            Elevator elevator = new Elevator(capacity, maxPersons, i);
             shaft.setElevator(elevator);
-            shaft.setPadding(new Insets(0, 0, 0, 0));
-            shaft.setStyle("-fx-padding: 0px;-fx-margin: 5px;");
 
             shafts.add(shaft);
             elevators.add(elevator);
-            shaft.setMinWidth(25);
-            shaft.setMaxWidth(25);
-            shaft.setPrefWidth(25);
-            shaft.setWidth(25.0);
+
             shaft.setHeight(gridPane.getHeight());
             shaft.setMinHeight(gridPane.getMinHeight());
             shaft.setMaxHeight(gridPane.getMaxHeight());
             shaft.setPrefHeight(gridPane.getPrefHeight());
             gridPane.add(shaft, i, 0, 1, levels);
-            shaft.setLayoutY(0.0);
             gridPane.setAlignment(Pos.CENTER);
 
         }
-
-        gridPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-            shafts.forEach(s->s.setHeight(newValue.doubleValue()));
-        });
-
-
         for (int i = 0; i < levels; i++) {
             destinationLevelComboBox.getItems().add(i);
             persons.put(i, new ArrayList<>());
@@ -98,52 +84,52 @@ public class MainController {
 
     @FXML
     public void addPersonOnZero() {
-        persons.get(9).add(createPerson());
+        persons.get(0).add(createPerson());
     }
 
     @FXML
     public void addPersonOnOne() {
-        persons.get(8).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnTwo() {
-        persons.get(7).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnThree() {
-        persons.get(6).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnFour() {
-        persons.get(5).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnFive() {
-        persons.get(4).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnSix() {
-        persons.get(3).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnSeven() {
-        persons.get(2).add(createPerson());
-    }
-
-    @FXML
-    public void addPersonOnEight() {
         persons.get(1).add(createPerson());
     }
 
     @FXML
+    public void addPersonOnTwo() {
+        persons.get(2).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnThree() {
+        persons.get(3).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnFour() {
+        persons.get(4).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnFive() {
+        persons.get(5).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnSix() {
+        persons.get(6).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnSeven() {
+        persons.get(7).add(createPerson());
+    }
+
+    @FXML
+    public void addPersonOnEight() {
+        persons.get(8).add(createPerson());
+    }
+
+    @FXML
     public void addPersonOnNine() {
-        persons.get(0).add(createPerson());
+        persons.get(9).add(createPerson());
     }
 
     private Person createPerson() {
@@ -183,6 +169,30 @@ public class MainController {
         LOG.debug("STOP motherfucker");
     }
 
+    private void updateFloorText(int floor) {
+        int callCount = 0;
+        int callUpCount = 0;
+        int callDownCount = 0;
+        for (Person person : getPersons(floor)) {
+            switch (person.getCall()) {
+                case CALL_UP:
+                    callUpCount++;
+                    break;
+                case CALL_DOWN:
+                    callDownCount++;
+                    break;
+                case CALL:
+                    callCount++;
+                    break;
+                default:
+                    break;
+            }
+        }
+        String text = String.format("Call: %d; Call up: %d; Call down: %d;", callCount, callUpCount, callDownCount);
+        floorsText.get(floor).setText(text);
+    }
+
+
     class TimerClass extends TimerTask {
 
         @Override
@@ -210,6 +220,7 @@ public class MainController {
             LOG.debug("Run fuzzy logic");
             for (Map.Entry<Integer, List<Person>> entry : persons.entrySet()) {
                 FuzzyControl.method(elevators, entry.getValue(), entry.getKey());
+                updateFloorText(entry.getKey());
             }
             //Move elevators
             LOG.debug("Move elevators");
