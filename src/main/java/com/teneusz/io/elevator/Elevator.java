@@ -56,13 +56,13 @@ public class Elevator {
      * @param capacity   Weight capacity of elevator
      * @param maxPersons Persons capacity of elevator
      */
-    public Elevator(int capacity, int maxPersons,int id) {
+    public Elevator(int capacity, int maxPersons, int id) {
         this.capacity = capacity;
         this.maxPersons = maxPersons;
         this.id = id;
     }
-    public int getId()
-    {
+
+    public int getId() {
         return id;
     }
 
@@ -110,7 +110,7 @@ public class Elevator {
     }
 
     public void addStation(int station) {
-        LOG.error("Dodaj station: " + station);
+        LOG.debug("Dodaj station: " + station);
         stations.add(station);
         if (direction == ElevatorDirection.STOP) {
             if (level > station) {
@@ -156,13 +156,12 @@ public class Elevator {
     private void recalculateDirection() {
         if (stations.isEmpty()) {
             direction = ElevatorDirection.STOP;
-        } else {
-            if (direction == ElevatorDirection.UP && level == 0 && ElevatorUtil.getMaxStation(new ArrayList<>(stations)) > level) {
-                direction = ElevatorDirection.DOWN;
-            } else if (direction == ElevatorDirection.DOWN && level == shaft.getMaxLevel() - 1 && ElevatorUtil.getMinStation(new ArrayList<>(stations)) < shaft.getMaxLevel()) {
-                direction = ElevatorDirection.UP;
-            }
+        } else if (direction == ElevatorDirection.UP && level == 0 && ElevatorUtil.getMaxStation(new ArrayList<>(stations)) > level) {
+            direction = ElevatorDirection.DOWN;
+        } else if (direction == ElevatorDirection.DOWN && level == shaft.getMaxLevel() - 1 && ElevatorUtil.getMinStation(new ArrayList<>(stations)) < shaft.getMaxLevel()) {
+            direction = ElevatorDirection.UP;
         }
+
     }
 
     /**
@@ -211,7 +210,7 @@ public class Elevator {
         }
         Platform.runLater(() -> shaft.repaint());
         LOG.debug("ELEVATOR level: " + level);
-        stations.forEach(s -> LOG.info("Station :" + s));
+        stations.forEach(s -> LOG.debug("Station :" + s));
     }
 
     @Override
@@ -225,10 +224,6 @@ public class Elevator {
 
     public ElevatorDirection getDirection() {
         return direction;
-    }
-
-    public void setDirection(ElevatorDirection direction) {
-        this.direction = direction;
     }
 
     public void addPerson(Person person) {

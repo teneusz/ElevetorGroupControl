@@ -4,6 +4,7 @@ import com.teneusz.io.fuzzy.logic.EnergyUsage;
 import com.teneusz.io.fuzzy.logic.LinguisticVariables;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
@@ -78,9 +79,10 @@ public class Plots {
 
         FlowPane flowPane = new FlowPane();
         flowPane.getChildren().addAll(weightChart, pietraChart, outputChart);
-        Scene scene = new Scene(flowPane, 800, 600);
-        weightChart.getData().addAll(weightLowSeries,weightAvgSeries,weightHighSeries);
-        pietraChart.getData().addAll(pietraMalaSeries,pietraSredniaSeries,pietraDuzaSeries);
+
+        Scene scene = new Scene(new ScrollPane(flowPane), 800, 600);
+        weightChart.getData().addAll(weightLowSeries, weightAvgSeries, weightHighSeries);
+        pietraChart.getData().addAll(pietraMalaSeries, pietraSredniaSeries, pietraDuzaSeries);
         outputChart.getData().add(outputSeries);
         weightChart.setMinWidth(750);
         pietraChart.setMinWidth(750);

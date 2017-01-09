@@ -8,7 +8,10 @@ import com.teneusz.io.person.Calling;
 import com.teneusz.io.person.Person;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import org.apache.log4j.Logger;
 
@@ -85,51 +88,61 @@ public class MainController {
     @FXML
     public void addPersonOnZero() {
         persons.get(0).add(createPerson());
+        updateFloorText(0);
     }
 
     @FXML
     public void addPersonOnOne() {
         persons.get(1).add(createPerson());
+        updateFloorText(1);
     }
 
     @FXML
     public void addPersonOnTwo() {
         persons.get(2).add(createPerson());
+        updateFloorText(2);
     }
 
     @FXML
     public void addPersonOnThree() {
         persons.get(3).add(createPerson());
+        updateFloorText(3);
     }
 
     @FXML
     public void addPersonOnFour() {
         persons.get(4).add(createPerson());
+        updateFloorText(4);
     }
 
     @FXML
     public void addPersonOnFive() {
         persons.get(5).add(createPerson());
+        updateFloorText(5);
     }
 
     @FXML
     public void addPersonOnSix() {
         persons.get(6).add(createPerson());
+        updateFloorText(6);
     }
 
     @FXML
     public void addPersonOnSeven() {
         persons.get(7).add(createPerson());
+        updateFloorText(7);
     }
 
     @FXML
     public void addPersonOnEight() {
         persons.get(8).add(createPerson());
+        updateFloorText(8);
     }
 
     @FXML
     public void addPersonOnNine() {
         persons.get(9).add(createPerson());
+        updateFloorText(9);
     }
 
     private Person createPerson() {
@@ -232,7 +245,7 @@ public class MainController {
                 LOG.debug("Elevator direction is equals UP");
                 getPersons(elevator.getLevel()).stream().filter(p -> p.getCall() == Calling.CALL_DOWN).forEach(p -> {
                     if (!elevator.isMaxPersons()) {
-                        LOG.debug("Add person to list of passengers");
+                        LOG.info("Add person to list of passengers to elevator id = " + elevator.getId());
                         elevator.addPerson(p);
                         LOG.debug("Add person to temporary list toRemove");
                         toRemove.add(p);

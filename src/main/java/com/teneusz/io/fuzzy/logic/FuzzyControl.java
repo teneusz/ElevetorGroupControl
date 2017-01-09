@@ -56,7 +56,7 @@ public class FuzzyControl {
      * @param conclusionArray Array with results from {@link Conclusion} class
      */
     private static void calling(List<Elevator> elevators, int level, float[] conclusionArray) {
-        LOG.info("Start calling");
+        LOG.debug("Start calling");
         List<Elevator> subList = new ArrayList<>();
         elevators.stream().filter(e -> {
             boolean callDown = (e.getDirection() == ElevatorDirection.UP || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() > level;
@@ -67,7 +67,7 @@ public class FuzzyControl {
     }
 
     private static void callingUp(List<Elevator> elevators, int level, float[] conclusionArray) {
-        LOG.info("Start callingDown");
+        LOG.debug("Start callingDown");
         List<Elevator> subList = new ArrayList<>();
         elevators.stream().filter(e -> (e.getDirection() == ElevatorDirection.UP || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() > level).forEach(subList::add);
         findBestElevator(elevators, level, conclusionArray, subList);
@@ -75,7 +75,7 @@ public class FuzzyControl {
     }
 
     private static void callingDown(List<Elevator> elevators, int level, float[] conclusionArray) {
-        LOG.info("Start callingUP");
+        LOG.debug("Start callingUP");
         List<Elevator> subList = new ArrayList<>();
         elevators.stream().filter(e -> (e.getDirection() == ElevatorDirection.DOWN || e.getDirection() == ElevatorDirection.STOP) && e.getLevel() < level).forEach(subList::add);
         findBestElevator(elevators, level, conclusionArray, subList);
@@ -85,7 +85,7 @@ public class FuzzyControl {
         Elevator elevator = elevators.get(0);
         float result = Float.MAX_VALUE;
         for (Elevator ev : subList) {
-            LOG.info("Elevator id: " + ev.getId());
+            LOG.debug("Elevator id: " + ev.getId());
             float tmp = conclusionArray[elevators.indexOf(ev)];
             if (tmp < result) {
                 elevator = ev;
