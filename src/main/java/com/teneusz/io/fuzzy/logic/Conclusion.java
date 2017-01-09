@@ -19,8 +19,8 @@ public class Conclusion {
     public float regula1(Elevator elevator, int destLevel) {
 
         float result = -1;
-        if (!elevator.isMaxPersons()) {
-            int elevatorWeight = elevator.getWeight();
+        if (!elevator.isMaxPersons() && !elevator.isOverLoaded()) {
+            int elevatorWeight = elevator.getWeight()-Elevator.EMPTY_ELEVATOR_WEIGHT;
             int levelDelta = Math.abs(elevator.getLevel() - destLevel);
             LOG.debug("Delta => "+ levelDelta);
 

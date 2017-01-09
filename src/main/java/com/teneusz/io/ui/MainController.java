@@ -212,6 +212,7 @@ public class MainController {
         public void run() {
             for (Elevator elevator : elevators) {
 
+                // TODO: WHEN CALL ELEVATOR GET ONLY ONE PE
                 int elevatorLevel = elevator.getLevel();
                 List<Person> tmpList = persons.get(elevatorLevel);
                 List<Person> toRemove = new ArrayList<>();
@@ -243,10 +244,11 @@ public class MainController {
         private void OnDirectionUp(Elevator elevator, List<Person> tmpList, List<Person> toRemove) {
             if (elevator.getDirection() == ElevatorDirection.UP) {
                 LOG.debug("Elevator direction is equals UP");
-                getPersons(elevator.getLevel()).stream().filter(p -> p.getCall() == Calling.CALL_DOWN).forEach(p -> {
+                getPersons(elevator.getLevel()).stream().filter(p -> p.getCall() == Calling.CALL_DOWN || p.getCall() == Calling.CALL).forEach(p -> {
                     if (!elevator.isMaxPersons()) {
                         LOG.info("Add person to list of passengers to elevator id = " + elevator.getId());
                         elevator.addPerson(p);
+                        LOG.info("Elevator size = " + elevator.getPersons().size());
                         LOG.debug("Add person to temporary list toRemove");
                         toRemove.add(p);
                     }
@@ -258,7 +260,7 @@ public class MainController {
         private void OnDirectionDown(Elevator elevator, List<Person> tmpList, List<Person> toRemove) {
             if (elevator.getDirection() == ElevatorDirection.DOWN) {
                 LOG.debug("Elevator direction is equals DOWN");
-                getPersons(elevator.getLevel()).stream().filter(p -> p.getCall() == Calling.CALL_UP).forEach(p -> {
+                getPersons(elevator.getLevel()).stream().filter(p -> p.getCall() == Calling.CALL_UP || p.getCall() == Calling.CALL).forEach(p -> {
                     if (!elevator.isMaxPersons()) {
                         LOG.debug("Add person to list of passengers");
                         elevator.addPerson(p);

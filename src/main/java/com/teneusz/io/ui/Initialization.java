@@ -24,7 +24,7 @@ public class Initialization extends Application {
             MainController fooController = fxmlLoader.getController();
             fooController.setTime(2);
             primaryStage.setResizable(false);
-            fooController.initialize(10, 4, 1200, 10);
+            fooController.initialize(10, 4, 900, 4);
 
             primaryStage.setScene(new Scene(p));
 

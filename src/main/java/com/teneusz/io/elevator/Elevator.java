@@ -16,6 +16,7 @@ import java.util.Set;
 public class Elevator {
     private static final Logger LOG = Logger.getLogger(Elevator.class);
     private final int id;
+    public static final int EMPTY_ELEVATOR_WEIGHT = 500;
 
     /**
      * Weight capacity of elevator - default 900
@@ -32,7 +33,7 @@ public class Elevator {
     /**
      * Weight of elevator
      */
-    private int weight = 500;
+    private int weight = EMPTY_ELEVATOR_WEIGHT;
     /**
      * Elevator shaft
      */
@@ -72,9 +73,11 @@ public class Elevator {
      * @return true if elevator is over loaded
      */
     public boolean isOverLoaded() {
-        weight = 0;
-        persons.stream().forEach(p -> weight += p.getWeight());
-        return (persons.size() > maxPersons) || (weight > capacity);
+
+        boolean result = (persons.size() > maxPersons) || (getWeight() > capacity);
+        LOG.info("weight > capacity = " + (getWeight() > capacity));
+        LOG.info("persons.size() > maxPersons = " + (persons.size() > maxPersons));
+        return result;
     }
 
     /**
@@ -147,9 +150,9 @@ public class Elevator {
         LOG.debug("com.teneusz.io.elevator.Elevator try go UP");
         if (level > 0) {
             setLevel(level - 1);
-        } else {
-            recalculateDirection();
         }
+        recalculateDirection();
+
 
     }
 
@@ -171,9 +174,9 @@ public class Elevator {
         LOG.debug("com.teneusz.io.elevator.Elevator try go down");
         if (shaft.getMaxLevel() > level) {
             setLevel(level + 1);
-        } else {
-            recalculateDirection();
         }
+        recalculateDirection();
+
 
     }
 
@@ -183,6 +186,9 @@ public class Elevator {
      * @return weight of elevator
      */
     public int getWeight() {
+        weight = EMPTY_ELEVATOR_WEIGHT;
+        persons.forEach(p -> weight += p.getWeight());
+        LOG.info("weight = " + weight);
         return weight;
     }
 
@@ -193,13 +199,6 @@ public class Elevator {
      */
     public boolean isMaxPersons() {
         return persons.size() == maxPersons;
-    }
-
-    /**
-     * Set direction of elevator to STOP
-     */
-    public void stop() {
-        direction = ElevatorDirection.STOP;
     }
 
     public void move() {
