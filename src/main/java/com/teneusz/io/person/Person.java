@@ -33,9 +33,6 @@ public class Person {
     {
         return call;
     }
-    public void setCall(Calling call){
-        this.call = call;
-    }
 
     public int getDestinationLevel() {
         return destinationLevel;

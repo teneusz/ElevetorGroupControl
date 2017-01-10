@@ -8,21 +8,84 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Teneusz on 26.12.2016.
+ * Class is responsible for generating and showing plots
  */
 public class Plots {
 
+    /**
+     * Declaration of {@link LinguisticVariables}
+     **/
     private final LinguisticVariables zm;
+    /**
+     * Declaration of {@link Stage}
+     **/
     private final Stage stage;
+    /**
+     * Declaration and definition of {@link NumberAxis}
+     **/
+    private NumberAxis yAxisOutput = new NumberAxis(-1.2, 1.2, 0.1);
+    /**
+     * Declaration and definition of {@link CategoryAxis}
+     **/
+    private CategoryAxis xAxisOutput = new CategoryAxis();
+    /**
+     * Declaration and definition of {@link LineChart}
+     **/
+    private LineChart<String, Number> outputValueChart = new LineChart<String, Number>(xAxisOutput, yAxisOutput);
+    /**
+     * List of series to output values chart
+     **/
+    private List<XYChart.Series<String, Number>> outputValueSeries = new ArrayList<>();
 
-    public Plots(LinguisticVariables lv, Stage stage) {
+    /**
+     * Constructor of {@link Plots} class
+     *
+     * @param lv              {@link LinguisticVariables} object
+     * @param stage           stage of window
+     * @param elevatorsAmount amount of elevators in building
+     */
+    public Plots(LinguisticVariables lv, Stage stage, int elevatorsAmount) {
         this.zm = lv;
         this.stage = stage;
+        stage.setTitle("Plots windows");
+        outputValueChart.setTitle("Output values");
+        for (int i = 0; i < elevatorsAmount; i++) {
+            XYChart.Series tmp = new XYChart.Series<>();
+            tmp.setName("Elevator " + i);
+            outputValueSeries.add(tmp);
+            outputValueChart.getData().add(outputValueSeries.get(i));
+        }
     }
 
+    /**
+     * Add values to output values chart
+     *
+     * @param array array of output values
+     */
+    public void addValues(float[] array) {
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss:SS");
+        for (int i = 0; i < array.length; i++) {
+
+            XYChart.Series tmp = outputValueSeries.get(i);
+            if (tmp.getData().size() > 50) {
+                tmp.getData().remove(0);
+            }
+            tmp.getData().add(new XYChart.Data(dateFormat.format(date), array[i]));
+
+        }
+    }
+
+    /**
+     * Initialize plots window
+     */
     public void initialize() {
 
         final NumberAxis xAxisWeight = new NumberAxis(500, 900, 50);
@@ -66,11 +129,13 @@ public class Plots {
             weightLowSeries.getData().add(new XYChart.Data(zm.elevatorWeight[i], zm.elevatorWeightLow[i]));
             weightAvgSeries.getData().add(new XYChart.Data(zm.elevatorWeight[i], zm.elevatorWeightAvg[i]));
             weightHighSeries.getData().add(new XYChart.Data(zm.elevatorWeight[i], zm.elevatorWeightHigh[i]));
+
         }
         for (int i = 0; i < zm.pietra.length; i++) {
             pietraMalaSeries.getData().add(new XYChart.Data(zm.pietra[i], zm.pietraMala[i]));
             pietraSredniaSeries.getData().add(new XYChart.Data(zm.pietra[i], zm.pietraSrednia[i]));
             pietraDuzaSeries.getData().add(new XYChart.Data(zm.pietra[i], zm.pietraDuza[i]));
+
         }
 
         for (Map.Entry<EnergyUsage, Float> entry : zm.energyUsage.entrySet()) {
@@ -78,7 +143,7 @@ public class Plots {
         }
 
         FlowPane flowPane = new FlowPane();
-        flowPane.getChildren().addAll(weightChart, pietraChart, outputChart);
+        flowPane.getChildren().addAll(outputValueChart, weightChart, pietraChart, outputChart);
 
         Scene scene = new Scene(new ScrollPane(flowPane), 800, 600);
         weightChart.getData().addAll(weightLowSeries, weightAvgSeries, weightHighSeries);
@@ -87,6 +152,11 @@ public class Plots {
         weightChart.setMinWidth(750);
         pietraChart.setMinWidth(750);
         outputChart.setMinWidth(750);
+
+        weightChart.setTitle("Weight chart");
+        pietraChart.setTitle("Floors chart");
+        outputChart.setTitle("Output chart");
+        outputValueChart.setMinWidth(750);
         stage.setScene(scene);
         stage.show();
     }

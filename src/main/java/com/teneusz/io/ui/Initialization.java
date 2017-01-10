@@ -12,26 +12,17 @@ import javafx.stage.Stage;
  */
 public class Initialization extends Application {
 
-    LinguisticVariables zm = new LinguisticVariables();
-
-    Stage plotStage = new Stage();
-
     public void start(Stage primaryStage) throws Exception {
 
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("main.fxml"));
             Pane p = fxmlLoader.load();
             MainController fooController = fxmlLoader.getController();
-            fooController.setTime(2);
             primaryStage.setResizable(false);
             fooController.initialize(10, 4, 900, 4);
-
+            primaryStage.setTitle("Main window");
             primaryStage.setScene(new Scene(p));
-
-            new Plots(zm, plotStage).initialize();
-
             primaryStage.setOnCloseRequest(event -> {
-                plotStage.close();
                 fooController.onClose();
             });
 

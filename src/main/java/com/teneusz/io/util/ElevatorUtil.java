@@ -13,32 +13,20 @@ public class ElevatorUtil {
         return person.getDestinationLevel() == level;
     }
 
-    public static boolean isSomeoneLeave(List<Person> persons, int level) {
-        boolean result = false;
-        for (Person person : persons) {
-            result = result || isParsonLeave(person, level);
+    public static int getMaxStation(@NotNull List<Integer> station) {
+        int result = -1;
+        for (Integer value : station) {
+            result = Math.max(value.intValue(), result);
         }
         return result;
     }
 
-    public static int getMaxStation(@NotNull List<Integer> station)
-    {
-        int result = -1;
-        for(Integer value:station)
-        {
-            result = Math.max(value.intValue(),result);
+    public static int getMinStation(@NotNull List<Integer> station) {
+        int result = Integer.MAX_VALUE;
+        for (Integer value : station) {
+            result = Math.min(value.intValue(), result);
         }
-        return  result;
-    }
-
-    public static int getMinStation(@NotNull List<Integer> station)
-    {
-        int result = -1;
-        for(Integer value:station)
-        {
-            result = Math.min(value.intValue(),result);
-        }
-        return  result;
+        return result;
     }
 
 }

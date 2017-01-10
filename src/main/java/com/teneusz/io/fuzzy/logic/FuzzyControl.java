@@ -5,6 +5,8 @@ import com.teneusz.io.elevator.Elevator;
 import com.teneusz.io.elevator.ElevatorDirection;
 import com.teneusz.io.person.Calling;
 import com.teneusz.io.person.Person;
+import com.teneusz.io.ui.Plots;
+import javafx.application.Platform;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -18,13 +20,14 @@ public class FuzzyControl {
     private static final Logger LOG = Logger.getLogger(FuzzyControl.class);
     private static final Conclusion conclusion = new Conclusion(new LinguisticVariables());
 
-    public static void method(@NotNull List<Elevator> elevators, @NotNull List<Person> personsOnFloor, @NotNull int level) {
+    public static void method(@NotNull List<Elevator> elevators, @NotNull List<Person> personsOnFloor, @NotNull int level, @NotNull Plots plots) {
         //Declaration and definition of conclusion array
         float conclusionArray[] = new float[elevators.size()];
         //Fill conclusion array with results from Conclusion class
         for (int i = 0; i < conclusionArray.length; i++) {
-            conclusionArray[i] = conclusion.regula1(elevators.get(i), level);
+            conclusionArray[i] = conclusion.findTheBestSolution(elevators.get(i), level);
         }
+        Platform.runLater(() -> plots.addValues(conclusionArray));
         //Set call flags on false
         callUp = false;
         callDown = false;
@@ -49,8 +52,6 @@ public class FuzzyControl {
     }
 
     /**
-     *
-     *
      * @param elevators       List of elevators in building
      * @param level           Current level
      * @param conclusionArray Array with results from {@link Conclusion} class

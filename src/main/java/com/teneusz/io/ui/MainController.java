@@ -4,22 +4,22 @@ import com.teneusz.io.elevator.Elevator;
 import com.teneusz.io.elevator.ElevatorDirection;
 import com.teneusz.io.elevator.ElevatorShaft;
 import com.teneusz.io.fuzzy.logic.FuzzyControl;
+import com.teneusz.io.fuzzy.logic.LinguisticVariables;
 import com.teneusz.io.person.Calling;
 import com.teneusz.io.person.Person;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Created by Teneusz on 10.12.2016.
+ * Controller for main.fxml file
  */
 public class MainController {
 
@@ -38,6 +38,8 @@ public class MainController {
     List<Elevator> elevators = new ArrayList<>();
     List<ElevatorShaft> shafts = new ArrayList<>();
     Map<Integer, List<Person>> persons = new HashMap<>();
+    Stage plotStage = new Stage();
+    Plots plots;
 
     Timer timer;
 
@@ -47,10 +49,18 @@ public class MainController {
 
     private int time = 1000;
 
+    /**
+     * initialize controller
+     *
+     * @param levels      amount of levels in building
+     * @param shaftsInter amount of shafts in building
+     * @param capacity    capacity of elevators
+     * @param maxPersons  how many persons can be in elevator
+     */
     public void initialize(int levels, int shaftsInter, int capacity, int maxPersons) {
         Collections.addAll(floorsText, new TextField[]{floorZeroText, floorOneText, floorTwoText, floorThreeText, floorFourText, floorFiveText, floorSixText, floorSevenText, floorEightText, floorNineText});
         timer = new Timer();
-        timerValue.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10));
+        timerValue.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100, 10000, time));
         timerValue.valueProperty().addListener((observable, oldValue, newValue) -> {
                     setTime(newValue);
                     stopTimer();
@@ -58,6 +68,14 @@ public class MainController {
                 }
         );
         callingComboBox.getItems().addAll(Calling.values());
+        callingComboBox.getSelectionModel().selectFirst();
+        timerValue.setEditable(true);
+        for (int i = 0; i < levels; i++) {
+            destinationLevelComboBox.getItems().add(i);
+            persons.put(i, new ArrayList<>());
+        }
+        destinationLevelComboBox.getSelectionModel().selectFirst();
+
         for (int i = 0; i < shaftsInter; i++) {
 
             LOG.debug("Add shaft No. " + i);
@@ -76,12 +94,11 @@ public class MainController {
             gridPane.setAlignment(Pos.CENTER);
 
         }
-        for (int i = 0; i < levels; i++) {
-            destinationLevelComboBox.getItems().add(i);
-            persons.put(i, new ArrayList<>());
-        }
 
         LOG.debug("GridPane height: " + gridPane.getPrefHeight());
+        plots = new Plots(new LinguisticVariables(), plotStage, elevators.size());
+        plots.initialize();
+
         startTimer();
     }
 
@@ -169,12 +186,8 @@ public class MainController {
         }
     }
 
-    public int getTime() {
-        return time;
-    }
-
-    public void setTime(int seconds) {
-        this.time = seconds * 1000;
+    public void setTime(int milliseconds) {
+        this.time = milliseconds;
     }
 
     public void onClose() {
@@ -206,13 +219,36 @@ public class MainController {
     }
 
 
+    @FXML
+    public void closeApplication() {
+        onClose();
+        Platform.exit();
+    }
+
+    @FXML
+    public void openPlots() {
+        if (plotStage.isShowing()) {
+            plotStage.hide();
+        } else {
+            plotStage.show();
+        }
+    }
+
+    @FXML
+    public void showAbout() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About");
+        alert.setHeaderText("Projekt na zajęcia \"Zastosowanie sztucznej inteligencji\"");
+        alert.setContentText("Temat projektu: Dynamic fuzzy logic elevator group control system\n\n\n" +
+                "Projekt wykonali:\nPrzemysław Potaczek\nMeronk Krzysztof");
+        alert.show();
+    }
+
     class TimerClass extends TimerTask {
 
         @Override
         public void run() {
             for (Elevator elevator : elevators) {
-
-                // TODO: WHEN CALL ELEVATOR GET ONLY ONE PE
                 int elevatorLevel = elevator.getLevel();
                 List<Person> tmpList = persons.get(elevatorLevel);
                 List<Person> toRemove = new ArrayList<>();
@@ -233,18 +269,28 @@ public class MainController {
             //Run fuzzy logic
             LOG.debug("Run fuzzy logic");
             for (Map.Entry<Integer, List<Person>> entry : persons.entrySet()) {
-                FuzzyControl.method(elevators, entry.getValue(), entry.getKey());
+                if (!persons.isEmpty()) {
+                    FuzzyControl.method(elevators, entry.getValue(), entry.getKey(), plots);
+                }
                 updateFloorText(entry.getKey());
+
             }
             //Move elevators
             LOG.debug("Move elevators");
             elevators.forEach(Elevator::move);
         }
 
+        /**
+         * Run method if elevator is going up
+         *
+         * @param elevator elevator object
+         * @param tmpList  temporary list of Persons
+         * @param toRemove list of persons to remove
+         */
         private void OnDirectionUp(Elevator elevator, List<Person> tmpList, List<Person> toRemove) {
             if (elevator.getDirection() == ElevatorDirection.UP) {
                 LOG.debug("Elevator direction is equals UP");
-                getPersons(elevator.getLevel()).stream().filter(p -> p.getCall() == Calling.CALL_DOWN || p.getCall() == Calling.CALL).forEach(p -> {
+                getPersons(elevator.getLevel()).stream().filter(p -> p.getDestinationLevel() <= elevator.getLevel()).forEach(p -> {
                     if (!elevator.isMaxPersons()) {
                         LOG.info("Add person to list of passengers to elevator id = " + elevator.getId());
                         elevator.addPerson(p);
@@ -257,10 +303,17 @@ public class MainController {
             clearPersons(tmpList, toRemove);
         }
 
+        /**
+         * Run method if elevator is going down
+         *
+         * @param elevator elevator object
+         * @param tmpList  temporary list of Persons
+         * @param toRemove list of persons to remove
+         */
         private void OnDirectionDown(Elevator elevator, List<Person> tmpList, List<Person> toRemove) {
             if (elevator.getDirection() == ElevatorDirection.DOWN) {
                 LOG.debug("Elevator direction is equals DOWN");
-                getPersons(elevator.getLevel()).stream().filter(p -> p.getCall() == Calling.CALL_UP || p.getCall() == Calling.CALL).forEach(p -> {
+                getPersons(elevator.getLevel()).stream().filter(p -> p.getDestinationLevel() >= elevator.getLevel()).forEach(p -> {
                     if (!elevator.isMaxPersons()) {
                         LOG.debug("Add person to list of passengers");
                         elevator.addPerson(p);
@@ -272,6 +325,12 @@ public class MainController {
             clearPersons(tmpList, toRemove);
         }
 
+        /**
+         * remove toRemove from tmpList
+         *
+         * @param tmpList  temporary list of Persons
+         * @param toRemove list of persons to remove
+         */
         private void clearPersons(List<Person> tmpList, List<Person> toRemove) {
             if (tmpList != null && toRemove != null) {
                 tmpList.removeAll(toRemove);
@@ -280,6 +339,7 @@ public class MainController {
                 toRemove.clear();
             }
         }
+
     }
 
 

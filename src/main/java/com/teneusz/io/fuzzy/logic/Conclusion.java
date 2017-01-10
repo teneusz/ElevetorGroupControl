@@ -16,33 +16,38 @@ public class Conclusion {
         this.variables = lv;
     }
 
-    public float regula1(Elevator elevator, int destLevel) {
-
+    /**
+     * Return fuzzy value for elevator based on the best solution rules
+     *
+     * @param elevator {@link Elevator} instance
+     * @param destinationLevel destination of person
+     * @return fuzzy value
+     */
+    public float findTheBestSolution(Elevator elevator, int destinationLevel) {
         float result = -1;
         if (!elevator.isMaxPersons() && !elevator.isOverLoaded()) {
-            int elevatorWeight = elevator.getWeight()-Elevator.EMPTY_ELEVATOR_WEIGHT;
-            int levelDelta = Math.abs(elevator.getLevel() - destLevel);
-            LOG.debug("Delta => "+ levelDelta);
+            int elevatorWeight = elevator.getWeight() - Elevator.EMPTY_ELEVATOR_WEIGHT;
+            int levelDelta = Math.abs(elevator.getLevel() - destinationLevel);
 
-            float masaMala = variables.elevatorWeightLow[elevatorWeight];
-            float masaAvg = variables.elevatorWeightAvg[elevatorWeight];
-            float masaDuza = variables.elevatorWeightHigh[elevatorWeight];
+            float weightLow = variables.elevatorWeightLow[elevatorWeight];
+            float weightAvg = variables.elevatorWeightAvg[elevatorWeight];
+            float weightHigh = variables.elevatorWeightHigh[elevatorWeight];
 
-            float pietraMala = variables.pietraMala[levelDelta];
-            float pietraAvg = variables.pietraSrednia[levelDelta];
-            float pietraDuza = variables.pietraDuza[levelDelta];
+            float floorLow = variables.pietraMala[levelDelta];
+            float floorAvg = variables.pietraSrednia[levelDelta];
+            float floorHigh = variables.pietraDuza[levelDelta];
 
-            float r1 = Math.min(pietraMala, masaMala);
-            float r2 = Math.min(pietraMala, masaAvg);
-            float r3 = Math.min(pietraMala, masaDuza);
+            float r1 = Math.min(floorLow, weightLow);
+            float r2 = Math.min(floorLow, weightAvg);
+            float r3 = Math.min(floorLow, weightHigh);
 
-            float r4 = Math.min(pietraAvg, masaMala);
-            float r5 = Math.min(pietraAvg, masaAvg);
-            float r6 = Math.min(pietraAvg, masaDuza);
+            float r4 = Math.min(floorAvg, weightLow);
+            float r5 = Math.min(floorAvg, weightAvg);
+            float r6 = Math.min(floorAvg, weightHigh);
 
-            float r7 = Math.min(pietraDuza, masaMala);
-            float r8 = Math.min(pietraDuza, masaAvg);
-            float r9 = Math.min(pietraDuza, masaDuza);
+            float r7 = Math.min(floorHigh, weightLow);
+            float r8 = Math.min(floorHigh, weightAvg);
+            float r9 = Math.min(floorHigh, weightHigh);
 
             float vg = Math.max(Math.max(r1, r2), r9);
             float b = Math.max(r3, r8);
@@ -50,9 +55,7 @@ public class Conclusion {
             float a = Math.max(r5, r7);
             float vb = r6;
 
-            LOG.debug(String.format("\nmasaMala: %f\nmasaAvg: %f\nmasaDuza: %f\npietraMala: %f\npietraAvg: %f\npietraDuza: %f",masaMala,masaAvg,masaDuza,pietraMala,pietraAvg,pietraDuza));
-            LOG.debug(String.format("\nR1: %f\nR2: %f\nR3: %f\nR4: %f\nR5: %f\nR6: %f\nR7: %f\nR8: %f\nR9: %f\n",r1,r2,r3,r4,r5,r6,r7,r8,r9));
-
+            //Weighted arithmetic mean
             result = ((vg * variables.energyUsage.get(EnergyUsage.VERY_GOOD)) +
                     (g * variables.energyUsage.get(EnergyUsage.GOOD)) +
                     (a * variables.energyUsage.get(EnergyUsage.AVG)) +
@@ -63,38 +66,44 @@ public class Conclusion {
         return result;
     }
 
-    public float regula2(Elevator elevator, int destLevel) {
+    /**
+     * Return fuzzy value based on the worst solution rules
+     *
+     * @param elevator {@link Elevator} instance
+     * @param destinationLevel destination of person
+     * @return fuzzy value
+     */
+    public float findTheWorstSolution(Elevator elevator, int destinationLevel) {
         float result = -1;
         if (!elevator.isMaxPersons()) {
             int elevatorWeight = elevator.getWeight();
-            int levelDelta = Math.abs(elevator.getLevel() - destLevel);
+            int levelDelta = Math.abs(elevator.getLevel() - destinationLevel);
 
-            float masaMala = variables.elevatorWeightLow[elevatorWeight];
-            float masaAvg = variables.elevatorWeightAvg[elevatorWeight];
-            float masaDuza = variables.elevatorWeightHigh[elevatorWeight];
+            float weightLow = variables.elevatorWeightLow[elevatorWeight];
+            float weightAvg = variables.elevatorWeightAvg[elevatorWeight];
+            float weightHigh = variables.elevatorWeightHigh[elevatorWeight];
 
-            float pietraMala = variables.pietraMala[levelDelta];
-            float pietraAvg = variables.pietraSrednia[levelDelta];
-            float pietraDuza = variables.pietraDuza[levelDelta];
+            float floorLow = variables.pietraMala[levelDelta];
+            float floorAvg = variables.pietraSrednia[levelDelta];
+            float floorHigh = variables.pietraDuza[levelDelta];
 
-            float r1 = Math.min(pietraMala, masaMala);
-            float r2 = Math.min(pietraMala, masaAvg);
-            float r3 = Math.min(pietraMala, masaDuza);
+            float r1 = Math.min(floorLow, weightLow);
+            float r2 = Math.min(floorLow, weightAvg);
+            float r3 = Math.min(floorLow, weightHigh);
 
-            float r4 = Math.min(pietraAvg, masaMala);
-            float r5 = Math.min(pietraAvg, masaAvg);
-            float r6 = Math.min(pietraAvg, masaDuza);
+            float r4 = Math.min(floorAvg, weightLow);
+            float r5 = Math.min(floorAvg, weightAvg);
+            float r6 = Math.min(floorAvg, weightHigh);
 
-            float r7 = Math.min(pietraDuza, masaMala);
-            float r8 = Math.min(pietraDuza, masaAvg);
-            float r9 = Math.min(pietraDuza, masaDuza);
+            float r7 = Math.min(floorHigh, weightLow);
+            float r8 = Math.min(floorHigh, weightAvg);
+            float r9 = Math.min(floorHigh, weightHigh);
 
             float a = Math.max(r1, Math.max(r2, r4));
             float vb = Math.max(r3, Math.max(r6, Math.max(r8, r9)));
             float b = Math.max(r5, r7);
-            LOG.debug(String.format("\nmasaMala: %f\nmasaAvg: %f\nmasaDuza: %f\npietraMala: %f\npietraAvg: %f\npietraDuza: %f",masaMala,masaAvg,masaDuza,pietraMala,pietraAvg,pietraDuza));
-            LOG.debug(String.format("\nR1: %f\nR2: %f\nR3: %f\nR4: %f\nR5: %f\nR6: %f\nR7: %f\nR8: %f\nR9: %f\n",r1,r2,r3,r4,r5,r6,r7,r8,r9));
 
+            //Weighted arithmetic mean
             result = ((a * variables.energyUsage.get(EnergyUsage.AVG)) +
                     (b * variables.energyUsage.get(EnergyUsage.BAD)) +
                     (vb * variables.energyUsage.get(EnergyUsage.VERY_BAD))

@@ -1,5 +1,6 @@
 package com.teneusz.io.elevator;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -9,24 +10,40 @@ import javafx.scene.text.Text;
 import org.apache.log4j.Logger;
 
 /**
- * Created by Teneusz on 05.12.2016.
+ * Class is representing elevator shaft
  */
 public class ElevatorShaft extends VBox {
 
     private static final Logger LOG = Logger.getLogger(ElevatorShaft.class);
 
+    /**
+     * Max level in shaft
+     **/
     private int maxLevel;
+    /**
+     * Object is representing elevator in shaft
+     **/
     private Elevator elevator;
 
+    /**
+     * Constructor of class
+     *
+     * @param levelAmount amount of levels in shaft
+     */
     public ElevatorShaft(int levelAmount) {
         setMaxLevel(levelAmount);
         this.setRotate(180);
     }
 
-    public ElevatorShaft() {
-        this.maxLevel = 0;
+    private ElevatorShaft() {
+        //Protection to use default constructor
     }
 
+    /**
+     * Add levels to shaft.<br>
+     * Method creating level in shaft by creating {@link Rectangle} and {@link Text} in {@link StackPane}.<br>
+     * Next step is add {@link StackPane} node to children to @{link {@link ElevatorShaft}
+     */
     private void addLevels() {
         LOG.debug("START addLevel");
         this.getChildren().clear();
@@ -46,6 +63,11 @@ public class ElevatorShaft extends VBox {
         LOG.debug("STOP addLevel");
     }
 
+    /**
+     * set new amount of levels in shaft
+     *
+     * @param maxLevel amounts of levels in shaft
+     */
     public void setMaxLevel(int maxLevel) {
         LOG.debug("START setMaxLevel");
         this.maxLevel = maxLevel;
@@ -85,18 +107,33 @@ public class ElevatorShaft extends VBox {
         LOG.debug("STOP setHeight");
     }
 
+    /**
+     * Repaint children in shaft
+     */
     public void repaint() {
         LOG.debug("START repaint");
         LOG.debug("Current level: " + elevator.getLevel());
-        this.getChildren().stream().filter(f -> ((Rectangle) ((StackPane) f).getChildren().get(0)).getFill() != Color.WHITE).forEach(c -> ((Rectangle) ((StackPane) c).getChildren().get(0)).setFill(Color.WHITE));
-        ((Rectangle) ((StackPane) this.getChildren().get(elevator.getLevel())).getChildren().get(0)).setFill(elevator.isOverLoaded() ? Color.RED : Color.BLUE);
+        Platform.runLater(() -> {
+            this.getChildren().stream().filter(f -> ((Rectangle) ((StackPane) f).getChildren().get(0)).getFill() != Color.WHITE).forEach(c -> ((Rectangle) ((StackPane) c).getChildren().get(0)).setFill(Color.WHITE));
+            ((Rectangle) ((StackPane) this.getChildren().get(elevator.getLevel())).getChildren().get(0)).setFill(elevator.isOverLoaded() ? Color.RED : Color.BLUE);
+        });
         LOG.debug("STOP repaint");
     }
 
+    /**
+     * Gets max level
+     *
+     * @return max level of shaft
+     */
     public int getMaxLevel() {
         return maxLevel;
     }
 
+    /**
+     * Set elevator in shaft
+     *
+     * @param elevator Elevator object
+     */
     public void setElevator(Elevator elevator) {
         LOG.debug("START setElevator");
         LOG.debug(elevator.toString());
