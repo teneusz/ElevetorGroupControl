@@ -56,6 +56,7 @@ public class Conclusion {
             float vb = r6;
 
             //Weighted arithmetic mean
+            //Metoda środka ciężkości
             result = ((vg * variables.energyUsage.get(EnergyUsage.VERY_GOOD)) +
                     (g * variables.energyUsage.get(EnergyUsage.GOOD)) +
                     (a * variables.energyUsage.get(EnergyUsage.AVG)) +
